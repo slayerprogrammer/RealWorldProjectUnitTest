@@ -6,14 +6,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using RealWorldProjectUnitTest.Web.Models;
+using RealWorldProjectUnitTest.Web.Repository;
 
 namespace RealWorldProjectUnitTest.Web.Controllers
 {
     public class ProductsController : Controller
     {
-        private readonly RealWorldProjectContext _context;
+        private readonly IRepository<Product> _context;
 
-        public ProductsController(RealWorldProjectContext context)
+        public ProductsController(IRepository<Product> context)
         {
             _context = context;
         }
@@ -21,21 +22,19 @@ namespace RealWorldProjectUnitTest.Web.Controllers
         // GET: Products
         public async Task<IActionResult> Index()
         {
-              return _context.Products != null ? 
-                          View(await _context.Products.ToListAsync()) :
-                          Problem("Entity set 'RealWorldProjectContext.Products'  is null.");
+            return View(await _context.GetAllAsync().ConfigureAwait(false));
         }
 
         // GET: Products/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.Products == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var product = await _context.Products
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var product = await _context.GetByIdAsync(id.Value).ConfigureAwait(false);
+
             if (product == null)
             {
                 return NotFound();
@@ -59,8 +58,7 @@ namespace RealWorldProjectUnitTest.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(product);
-                await _context.SaveChangesAsync();
+                await _context.CreateAsync(product).ConfigureAwait(false);
                 return RedirectToAction(nameof(Index));
             }
             return View(product);
@@ -69,12 +67,12 @@ namespace RealWorldProjectUnitTest.Web.Controllers
         // GET: Products/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.Products == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var product = await _context.Products.FindAsync(id);
+            var product = await _context.GetByIdAsync(id.Value).ConfigureAwait(false);
             if (product == null)
             {
                 return NotFound();
@@ -98,12 +96,12 @@ namespace RealWorldProjectUnitTest.Web.Controllers
             {
                 try
                 {
-                    _context.Update(product);
-                    await _context.SaveChangesAsync();
+                    await _context.UpdateAsync(product).ConfigureAwait(false);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ProductExists(product.Id))
+                    var resultAny = await ProductExists(product.Id).ConfigureAwait(false);
+                    if (!resultAny)
                     {
                         return NotFound();
                     }
@@ -120,13 +118,12 @@ namespace RealWorldProjectUnitTest.Web.Controllers
         // GET: Products/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _context.Products == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var product = await _context.Products
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var product = await _context.GetByIdAsync(id.Value).ConfigureAwait(false);
             if (product == null)
             {
                 return NotFound();
@@ -140,23 +137,25 @@ namespace RealWorldProjectUnitTest.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.Products == null)
+            if (id == null)
             {
                 return Problem("Entity set 'RealWorldProjectContext.Products'  is null.");
             }
-            var product = await _context.Products.FindAsync(id);
+
+            var product = await _context.GetByIdAsync(id).ConfigureAwait(false);
+
             if (product != null)
             {
-                _context.Products.Remove(product);
+                await _context.DeleteAsync(product).ConfigureAwait(false);
             }
-            
-            await _context.SaveChangesAsync();
+
             return RedirectToAction(nameof(Index));
         }
-
-        private bool ProductExists(int id)
+        private async Task<bool> ProductExists(int id)
         {
-          return (_context.Products?.Any(e => e.Id == id)).GetValueOrDefault();
+            var result = await _context.GetByIdAsync(id).ConfigureAwait(false);
+          
+            return result != null;
         }
     }
 }

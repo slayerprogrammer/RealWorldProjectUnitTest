@@ -1,11 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RealWorldProjectUnitTest.Web.Models;
+using RealWorldProjectUnitTest.Web.Repository;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 builder.Services.AddDbContext<RealWorldProjectContext>(opt =>
 {
