@@ -30,7 +30,7 @@ namespace RealWorldProjectUnitTest.Web.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction("Index");
             }
 
             var product = await _context.GetByIdAsync(id.Value).ConfigureAwait(false);

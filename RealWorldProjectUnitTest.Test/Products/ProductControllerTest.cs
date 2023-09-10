@@ -30,6 +30,7 @@ namespace RealWorldProjectUnitTest.Test.Products
             };
         }
 
+        #region Index Method
         //Index Metodunu Test Ediyoruz
         //İsimlendirme 3 aşamadan oluşuyordu hatırlarsanız hangi metot, tipi, dönüşü
         //IsType ile tipine bakıyoruz
@@ -59,7 +60,51 @@ namespace RealWorldProjectUnitTest.Test.Products
             //gelen datanın sayısını kontrol ediyoruz
             Assert.Equal<int>(2, productList.Count());
         }
+        #endregion
 
+        [Fact]
+        public async void Details_IdIsNull_ReturnRedirectToIndexAction()
+        {
+            var result = await _controller.Details(null);
+
+            var redirect = Assert.IsType<RedirectToActionResult>(result);
+            Assert.Equal("Index", redirect.ActionName);
+        }
+
+
+        [Fact]
+        public async void Details_IdInValid_ReturnNotFound()
+        {
+            Product product = null;
+            _mockRepo.Setup(x => x.GetByIdAsync(0)).ReturnsAsync(product);
+
+            var result = await _controller.Details(0);
+
+            var redirect = Assert.IsType<NotFoundResult>(result);
+            Assert.Equal<int>(404, redirect.StatusCode);
+        }
+
+        //id si 1 olanı bulalım.
+        [Theory]
+        [InlineData(1)]
+
+        public async void Details_ValidId_ReturnProduct(int productId)
+        {
+            Product product = products.First(x=>x.Id == productId);
+            _mockRepo.Setup(x => x.GetByIdAsync(productId)).ReturnsAsync(product);
+
+            var result = await _controller.Details(productId);
+
+            //dönüş tipi kontrol ediliyor
+            var viewResult = Assert.IsType<ViewResult>(result);
+
+            //product modeli geliyor mu kontrol ediliyor
+            var resultProduct = Assert.IsAssignableFrom<Product>(viewResult.Model);
+
+            //bana gelen product ile dönen product nesnesi aynı mı kontrol edelim
+            Assert.Equal(product.Id, resultProduct.Id);
+            Assert.Equal(product.Name, resultProduct.Name);
+        }
 
     }
 }
