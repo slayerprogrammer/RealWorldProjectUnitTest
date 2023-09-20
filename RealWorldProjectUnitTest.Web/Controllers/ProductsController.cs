@@ -54,7 +54,7 @@ namespace RealWorldProjectUnitTest.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Price,Stock,Color,Description")] Product product)
+        public async Task<IActionResult> Create(Product product)
         {
             if (ModelState.IsValid)
             {
@@ -69,7 +69,7 @@ namespace RealWorldProjectUnitTest.Web.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction("Index");
             }
 
             var product = await _context.GetByIdAsync(id.Value).ConfigureAwait(false);
@@ -85,7 +85,7 @@ namespace RealWorldProjectUnitTest.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Price,Stock,Color,Description")] Product product)
+        public async Task<IActionResult> Edit(int id, Product product)
         {
             if (id != product.Id)
             {
@@ -94,22 +94,7 @@ namespace RealWorldProjectUnitTest.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    await _context.UpdateAsync(product).ConfigureAwait(false);
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    var resultAny = await ProductExists(product.Id).ConfigureAwait(false);
-                    if (!resultAny)
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                await _context.UpdateAsync(product).ConfigureAwait(false);
                 return RedirectToAction(nameof(Index));
             }
             return View(product);
@@ -137,21 +122,14 @@ namespace RealWorldProjectUnitTest.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (id == null)
-            {
-                return Problem("Entity set 'RealWorldProjectContext.Products'  is null.");
-            }
 
             var product = await _context.GetByIdAsync(id).ConfigureAwait(false);
 
-            if (product != null)
-            {
-                await _context.DeleteAsync(product).ConfigureAwait(false);
-            }
+            await _context.DeleteAsync(product).ConfigureAwait(false);
 
             return RedirectToAction(nameof(Index));
         }
-        private async Task<bool> ProductExists(int id)
+        public async Task<bool> ProductExists(int id)
         {
             var result = await _context.GetByIdAsync(id).ConfigureAwait(false);
           
