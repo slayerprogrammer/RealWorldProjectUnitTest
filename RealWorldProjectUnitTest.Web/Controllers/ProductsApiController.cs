@@ -7,7 +7,7 @@ using RealWorldProjectUnitTest.Web.Repository;
 
 namespace RealWorldProjectUnitTest.Web.Controllers
 {
-    [Route("api/[controller]/[action]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class ProductsApiController : ControllerBase
     {
@@ -52,11 +52,11 @@ namespace RealWorldProjectUnitTest.Web.Controllers
         public async Task<IActionResult> PostProduct( Product model)
         {
             await _context.CreateAsync(model);
-            return CreatedAtAction("GetProductById", new {id = model.Id}, model);
+            return CreatedAtAction("GetProductAsync", new {id = model.Id}, model);
         }
 
-        [HttpDelete]
-        public async Task<IActionResult> DeleteProduct(int id)
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<Product>> DeleteProduct(int id)
         {
             var product = await _context.GetByIdAsync(id);
             if (product == null)
