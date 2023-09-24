@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Moq;
 using RealWorldProjectUnitTest.Web.Controllers;
+using RealWorldProjectUnitTest.Web.Helpers;
 using RealWorldProjectUnitTest.Web.Models;
 using RealWorldProjectUnitTest.Web.Repository;
 using System;
@@ -16,6 +17,7 @@ namespace RealWorldProjectUnitTest.Test.Products
     {
         private readonly Mock<IRepository<Product>> _mockRepo;
         private readonly ProductsApiController _controller;
+        private readonly Helper _helper;
 
         private List<Product> products;
 
@@ -23,12 +25,20 @@ namespace RealWorldProjectUnitTest.Test.Products
         {
             _mockRepo = new Mock<IRepository<Product>>();
             _controller = new ProductsApiController(_mockRepo.Object);
-
+            _helper = new Helper();
             products = new List<Product>()
             {
                 new Product{Id =1, Name = "Kalem", Color = "Kırmızı", Price = 100, Stock = 10, Description = "Güzel Kalem"},
                 new Product{Id =2, Name = "Defter", Color = "Beyaz", Price = 300, Stock = 20, Description = "Çizgili Kalem"}
             };
+        }
+
+        [Theory]
+        [InlineData(2,3,5)]
+        public void Add_SampleCalculator_ReturnTotal(int a, int b, int total)
+        {
+            var result = _helper.add(a, b);
+            Assert.Equal(result, total);
         }
 
 

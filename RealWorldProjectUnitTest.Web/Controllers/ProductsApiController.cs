@@ -13,6 +13,12 @@ namespace RealWorldProjectUnitTest.Web.Controllers
     {
         private readonly IRepository<Product> _context;
 
+        [HttpGet("{a}/{b}")]
+        public IActionResult Add(int a, int b)
+        {
+            return Ok(new Helpers.Helper().add(a, b));
+        }
+
         public ProductsApiController(IRepository<Product> context)
         {
             _context = context;
