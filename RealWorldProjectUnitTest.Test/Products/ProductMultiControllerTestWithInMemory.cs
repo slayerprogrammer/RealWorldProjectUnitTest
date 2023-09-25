@@ -11,7 +11,7 @@ using Xunit;
 
 namespace RealWorldProjectUnitTest.Test.Products
 {
-    public class ProductMultiControllerTestWithInMemory : ProductMultiController
+    public class ProductMultiControllerTestWithInMemory : ProductMultiControllerBase
     {
         public ProductMultiControllerTestWithInMemory()
         {

@@ -12,7 +12,7 @@ using Xunit;
 
 namespace RealWorldProjectUnitTest.Test.Products
 {
-    public class ProductMultiControllerTestWithInSqlDb : ProductMultiController
+    public class ProductMultiControllerTestWithInSqlDb : ProductMultiControllerBase
     {
         public ProductMultiControllerTestWithInSqlDb()
         {

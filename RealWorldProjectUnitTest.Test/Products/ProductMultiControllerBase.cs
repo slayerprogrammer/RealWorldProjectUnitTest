@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace RealWorldProjectUnitTest.Test.Products
 {
-    public class ProductMultiController
+    public class ProductMultiControllerBase
     {
         //miras alanlar erişebilsin protected
         protected DbContextOptions<RealWorldProjectContext> _dbContextOptions { get; private set; }
